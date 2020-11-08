@@ -239,6 +239,27 @@ impl File {
     pub fn types(&self) -> error::Result<impl Iterator<Item = super::types::VariableType>> {
         super::types::all_at_location(self.ncid()).map(|x| x.map(Result::unwrap))
     }
+
+    /// Switch file to data mode
+    /// Mode switching is only required for files with CLASSIC_MODEL
+    /// This mode does not allow adding variables but allows writing data
+    /// New files are opened in "define" mode.
+    pub fn define_mode(&self) -> error::Result<()> {
+        unsafe {
+            error::checked(super::with_lock(|| nc_enddef(self.ncid())))
+        }
+    }
+
+    /// Switch file to data mode
+    /// Data mode allows writing data but disallows defining variables, attributes and dimensions
+    /// Mode switching is only required for files with CLASSIC_MODEL
+    /// New files are opened in "define" mode.
+    pub fn data_mode(&self) -> error::Result<()> {
+        unsafe {
+            error::checked(super::with_lock(|| nc_enddef(self.ncid())))
+        }
+    }
+
 }
 
 /// Mutable access to file
